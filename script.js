@@ -1,7 +1,70 @@
 // $(document).ready(function() {
 var interval = 100;
 var isPaused = true;
-var options = {};
+var options = {
+  autoplay: false
+  // errorDisplay: false
+};
+// generateGraph();
+var myPlot = document.getElementById("graph");
+var global_annotations = [];
+var layout = {
+  hovermode: "closest",
+  title: "$y"
+};
+
+var columns = new Object();
+var rows = new Object();
+var headers = [];
+
+// Plotly.newPlot("chart", data, layout);
+
+// myPlot.on("plotly_click", function(data) {
+//   for (var i = 0; i < data.points.length; i++) {
+//     annotate_text =
+//       "x = " + data.points[i].x + "; y = " + data.points[i].y.toPrecision(4);
+
+//     annotation = {
+//       text: annotate_text,
+//       x: data.points[i].x,
+//       y: parseFloat(data.points[i].y.toPrecision(4))
+//     };
+
+//     // annotations = self.layout.annotations || [];
+//     // annotations.push(annotation);
+//     const checkText = obj => obj.text === annotation.text;
+//     if (global_annotations.some(checkText)){
+//         global_annotations = global_annotations.filter(function(e) { return e !== annotation })
+//     }else{
+//         global_annotations.push(annotation);
+//     }
+
+//     console.log( global_annotations)
+//     Plotly.relayout("chart", { annotations: global_annotations });
+//   }
+// });
+
+// myPlot.on('plotly_selected', function(eventData) {
+//     console.log("kek")
+//     var x = [];
+//     var y = [];
+
+//     var colors = [];
+//     for(var i = 0; i < N; i++) colors.push(color1Light);
+
+//     eventData.points.forEach(function(pt) {
+//       x.push(pt.x);
+//       y.push(pt.y);
+//       colors[pt.pointNumber] = color1;
+//     });
+
+//     Plotly.restyle(myPlot, {
+//       x: [x, y],
+//       xbins: {}
+//     }, [1, 2]);
+
+//     Plotly.restyle(myPlot, 'marker.color', [colors], [0]);
+//   });
 
 var mplayer = videojs("my-video", options, function onPlayerReady() {
   videojs.log("Your player is ready!");
@@ -11,24 +74,43 @@ var mplayer = videojs("my-video", options, function onPlayerReady() {
 
   // How about an event listener?
   this.on("ended", function() {
-    videojs.log("Awww...over so soon?!");
+    videojs.log("Vide Ended");
   });
 });
 
-function drawGraphAxis(){
+function drawGraphAxis() {}
 
+function generateStaticGraph(x_, y_, divname, type_ = "scatter") {
+  
+  var dataTrace = {
+    x: x_,
+    y: y_,
+    type: type_
+  };
+
+  Plotly.newPlot(divname, [dataTrace]);
 }
 
-function generateGraph() {
+function generateDynamicGraph() {
   function getData() {
     return Math.random();
   }
-  Plotly.plot("chart", [
+  Plotly.newPlot("chart", [
     {
       y: [getData()],
-      type: "line"
+      type: "line",
+      layout: layout
     }
   ]);
+
+  //   Plotly.newPlot(
+  //     "chart",
+  //     {
+  //       y: [getData()],
+  //       type: "line"
+  //     },
+  //
+  //   );
 
   var cnt = 0;
   setInterval(function() {
@@ -46,13 +128,14 @@ function generateGraph() {
           xaxis: {
             range: [cnt - 500, cnt]
           }
+          //   annotations: self.layout.annotations
         });
       }
     }
   }, interval);
 }
 
-
+// generateGraph();
 
 // Video
 $(document).on("click", "#playPause", function(e) {
@@ -69,14 +152,17 @@ $(document).on("click", "#playPause", function(e) {
 
 // Video Picker
 
-this.onFileChange = function () {
-    let file = document.getElementById('videofile');  
-     
-    this.mplayer.src("./"+file.files[0].name);
-    this.mplayer.pause();
-  };
+this.onFileChange = function() {
+  //   this.mplayer.errorDisplay(true);
+  //   $('#my-video').css('visibility','visible');
+  let file = document.getElementById("videofile");
 
-// CSV file picker 
+  this.mplayer.src("./" + file.files[0].name);
+
+  this.mplayer.pause();
+};
+
+// CSV file picker
 
 if (isAPIAvailable()) {
   $("#csvfile").bind("change", handleFileSelect);
@@ -116,7 +202,6 @@ function handleFileSelect(evt) {
   // read the file metadata
   var output = "";
 
-
   // read the file contents
   printTable(file);
 
@@ -125,11 +210,6 @@ function handleFileSelect(evt) {
 }
 
 //Table utils
-$.fn.getColumn = function(column) {
-    return this.find('tr').map(function() {
-        return $(this).find('td').eq(column).text();
-    }).get();
-};
 
 function printTable(file) {
   var reader = new FileReader();
@@ -137,24 +217,205 @@ function printTable(file) {
   reader.onload = function(event) {
     var csv = event.target.result;
     var data = $.csv.toArrays(csv);
+
     var html = "";
-    for (var row in data) {
+
+    // for (var row in data) {
+    for (var i = 0; i < data.length; i++) {
+      var row = data[i];
+      rows[i] = row;
       html += "<tr>\r\n";
-      for (var item in data[row]) {
-        html += "<td>" + data[row][item] + "</td>\r\n";
+
+      for (var j = 0; j < row.length; j++) {
+        item = row[j];
+        html += "<td>" + item + "</td>\r\n";
+        if (!(j in columns)) {
+          columns[j] = [];
+        }
+
+        if (i != 0) {
+          columns[j].push(item);
+        }
       }
+
       html += "</tr>\r\n";
     }
+
+    headers = rows[0];
+    delete rows[0];
+    // generateStaticGraph(columns[0], columns[6], "graph");
+    generateDropdown(columns,headers);
     $("#contents").html(html);
   };
   reader.onerror = function() {
     alert("Unable to read " + file.fileName);
   };
-  console.log($('table').getColumn(1));
-  generateGraph();
+
+  // generateDynamicGraph();
+  
 }
 
 
+// Dropdown + Graph
+
+function generateDropdown(columnObject,headerObject){
+  function makeTrace(i) {
+
+    return {
+        x:columnObject[0],
+        y: columnObject[i],
+        line: { 
+            shape: 'line' ,
+            color: 'blue'
+        },
+        visible: i === 0,
+        name: headerObject[i],
+  
+    };
+  }
+
+  var arrayColumnRange = [...Array(headers.length).keys()];
+
+  function generateButtonDropdowns(rangeList,headerList){
+      result = [];
+      for(var i in rangeList){
+        var temp = Object();
+        var boolList = Array(rangeList.length).fill(false);
+        boolList[i] = true
+        temp['method'] = 'restyle';
+        temp['args'] = ['visible',boolList];
+        temp['label'] = headerList[i];
+        result.push(temp);
+
+      }
+      return result;
+  }
+
+  Plotly.newPlot('graph', arrayColumnRange.map(makeTrace), {
+    updatemenus: [      
+     {
+        y: 1,
+        yanchor: 'top',
+        buttons: generateButtonDropdowns(arrayColumnRange,headerObject),
+    }],
+  });
+
+  
+
+  
+  // Show Annotations on graph 
+  myPlot.on("plotly_click", function(data) {
+    for (var i = 0; i < data.points.length; i++) {
+      annotate_text =
+        "x = " + data.points[i].x + "; y = " + data.points[i].y.toPrecision(4);
+  
+      annotation = {
+        text: annotate_text,
+        x: data.points[i].x,
+        y: parseFloat(data.points[i].y.toPrecision(4))
+      };
  
+      const checkText = obj => obj.text === annotation.text;
+      if (global_annotations.some(checkText)){
+          global_annotations = global_annotations.filter(function(e) { return e !== annotation })
+      }else{
+          global_annotations.push(annotation);
+      }
+  
+      console.log( global_annotations)
+      Plotly.relayout("graph", { annotations: global_annotations });
+    }
+  });
+
+
+
+  myPlot.on("plotly_restyle",function(data){
+    console.log(data[0]['visible']);
+    const isTrue = (element) => element === true;
+    var visIndex = data[0]['visible'].findIndex(isTrue);
+    alert(headers[visIndex]);
+     
+  })
+}
+
+// Clear Annotations
+$(document).on("click", "#clearAnnotations", function(e) {
+  e.preventDefault();
+  global_annotations = [];
+  Plotly.relayout("graph", { annotations: global_annotations });
+});
 
 // });
+
+/* Animation trace chart
+var t = new Array(101).fill(0).map((d, i) => i / 100);
+
+Plotly.plot('graph', {
+  data: [{
+    x: t,
+    y: t.map(t => t * t + Math.sin(t * 30)),
+    id: t,
+    mode: 'markers',
+    transforms: [{
+      type: 'filter',
+      operation: '=',
+      target: t,
+      value: 0.0
+    }]
+  }],
+  layout: {
+    xaxis: {autorange: false, range: [0, 1]},
+    yaxis: {autorange: false, range: [-1, 2]},
+    updatemenus: [{
+      type: 'buttons',
+      xanchor: 'left',
+      yanchor: 'top',
+      direction: 'right',
+      x: 0,
+      y: 0,
+      pad: {t: 60},
+      showactive: false,
+      buttons: [{
+        label: 'Play',
+        method: 'animate',
+        args: [null, {
+          transition: {duration: 0},
+          frame: {duration: 20, redraw: false},
+          mode: 'immediate',
+          fromcurrent: true,
+        }]
+      }, {
+        label: 'Pause',
+        method: 'animate',
+        args: [[null], {
+          frame: {duration: 0, redraw: false},
+          mode: 'immediate',
+        }]
+      }]
+    }],
+    sliders: [{
+      currentvalue: {
+        prefix: 't = ',
+        xanchor: 'right'
+      },
+      pad: {l: 130, t: 30},
+      transition: {
+        duration: 0,
+      },
+      steps: t.map(t => ({
+        label: t,
+        method: 'animate',
+        args: [[t], {
+          frame: {duration: 0, redraw: false},
+          mode: 'immediate',
+        }]
+      }))
+    }]
+  },
+  frames: t.map(t => ({
+    name: t,
+    data: [{'transforms[0].value': t}]
+  }))
+})
+
+*/
