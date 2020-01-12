@@ -1,11 +1,15 @@
-// $(document).ready(function() {
+//********************//
+// Global variables //
+//********************//
 var interval = 100;
 var isPaused = true;
-var options = {
+
+// Video options
+var video_options = {
   autoplay: false
   // errorDisplay: false
 };
-// generateGraph();
+
 var myPlot = document.getElementById("graph");
 var global_annotations = [];
 var layout = {
@@ -13,60 +17,13 @@ var layout = {
   title: "$y"
 };
 
-var columns = new Object();
-var rows = new Object();
-var headers = [];
+// var columns = new Object();
+// var rows = new Object();
+// var headers = [];
+var selectedColumn;
 
-// Plotly.newPlot("chart", data, layout);
-
-// myPlot.on("plotly_click", function(data) {
-//   for (var i = 0; i < data.points.length; i++) {
-//     annotate_text =
-//       "x = " + data.points[i].x + "; y = " + data.points[i].y.toPrecision(4);
-
-//     annotation = {
-//       text: annotate_text,
-//       x: data.points[i].x,
-//       y: parseFloat(data.points[i].y.toPrecision(4))
-//     };
-
-//     // annotations = self.layout.annotations || [];
-//     // annotations.push(annotation);
-//     const checkText = obj => obj.text === annotation.text;
-//     if (global_annotations.some(checkText)){
-//         global_annotations = global_annotations.filter(function(e) { return e !== annotation })
-//     }else{
-//         global_annotations.push(annotation);
-//     }
-
-//     console.log( global_annotations)
-//     Plotly.relayout("chart", { annotations: global_annotations });
-//   }
-// });
-
-// myPlot.on('plotly_selected', function(eventData) {
-//     console.log("kek")
-//     var x = [];
-//     var y = [];
-
-//     var colors = [];
-//     for(var i = 0; i < N; i++) colors.push(color1Light);
-
-//     eventData.points.forEach(function(pt) {
-//       x.push(pt.x);
-//       y.push(pt.y);
-//       colors[pt.pointNumber] = color1;
-//     });
-
-//     Plotly.restyle(myPlot, {
-//       x: [x, y],
-//       xbins: {}
-//     }, [1, 2]);
-
-//     Plotly.restyle(myPlot, 'marker.color', [colors], [0]);
-//   });
-
-var mplayer = videojs("my-video", options, function onPlayerReady() {
+// Initialize video component
+var mplayer = videojs("my-video", video_options, function onPlayerReady() {
   videojs.log("Your player is ready!");
 
   // In this context, `this` is the player that was created by Video.js.
@@ -74,14 +31,11 @@ var mplayer = videojs("my-video", options, function onPlayerReady() {
 
   // How about an event listener?
   this.on("ended", function() {
-    videojs.log("Vide Ended");
+    videojs.log("Video Ended");
   });
 });
 
-function drawGraphAxis() {}
-
 function generateStaticGraph(x_, y_, divname, type_ = "scatter") {
-  
   var dataTrace = {
     x: x_,
     y: y_,
@@ -102,15 +56,6 @@ function generateDynamicGraph() {
       layout: layout
     }
   ]);
-
-  //   Plotly.newPlot(
-  //     "chart",
-  //     {
-  //       y: [getData()],
-  //       type: "line"
-  //     },
-  //
-  //   );
 
   var cnt = 0;
   setInterval(function() {
@@ -163,36 +108,11 @@ this.onFileChange = function() {
 };
 
 // CSV file picker
-
+// *
+// * isAPIAvailable defined in utils
+// *
 if (isAPIAvailable()) {
   $("#csvfile").bind("change", handleFileSelect);
-}
-
-function isAPIAvailable() {
-  // Check for the various File API support.
-  if (window.File && window.FileReader && window.FileList && window.Blob) {
-    // Great success! All the File APIs are supported.
-    return true;
-  } else {
-    // source: File API availability - http://caniuse.com/#feat=fileapi
-    // source: <output> availability - http://html5doctor.com/the-output-element/
-    document.writeln(
-      "The HTML5 APIs used in this form are only available in the following browsers:<br />"
-    );
-    // 6.0 File API & 13.0 <output>
-    document.writeln(" - Google Chrome: 13.0 or later<br />");
-    // 3.6 File API & 6.0 <output>
-    document.writeln(" - Mozilla Firefox: 6.0 or later<br />");
-    // 10.0 File API & 10.0 <output>
-    document.writeln(
-      " - Internet Explorer: Not supported (partial support expected in 10.0)<br />"
-    );
-    // ? File API & 5.1 <output>
-    document.writeln(" - Safari: Not supported<br />");
-    // ? File API & 9.2 <output>
-    document.writeln(" - Opera: Not supported");
-    return false;
-  }
 }
 
 function handleFileSelect(evt) {
@@ -211,40 +131,49 @@ function handleFileSelect(evt) {
 
 //Table utils
 
+// * Input csv data in raw form
+// *
+// * Outputs html, column, row and header objects
+function parseCSV(csvData) {
+  var columns = Object();
+  var rows = Object();
+  var headers = [];
+  var html = "";
+  for (var i = 0; i < csvData.length; i++) {
+    var row = csvData[i];
+    rows[i] = row;
+    html += "<tr>\r\n";
+
+    for (var j = 0; j < row.length; j++) {
+      item = row[j];
+      html += "<td>" + item + "</td>\r\n";
+      if (!(j in columns)) {
+        columns[j] = [];
+      }
+
+      if (i != 0) {
+        columns[j].push(item);
+      }
+    }
+
+    html += "</tr>\r\n";
+  }
+
+  headers = rows[0];
+  delete rows[0];  
+  return [html, rows, columns, headers];
+}
+
 function printTable(file) {
   var reader = new FileReader();
   reader.readAsText(file);
   reader.onload = function(event) {
     var csv = event.target.result;
     var data = $.csv.toArrays(csv);
+    const [html, rows, columns, headers] = parseCSV(data);
 
-    var html = "";
-
-    // for (var row in data) {
-    for (var i = 0; i < data.length; i++) {
-      var row = data[i];
-      rows[i] = row;
-      html += "<tr>\r\n";
-
-      for (var j = 0; j < row.length; j++) {
-        item = row[j];
-        html += "<td>" + item + "</td>\r\n";
-        if (!(j in columns)) {
-          columns[j] = [];
-        }
-
-        if (i != 0) {
-          columns[j].push(item);
-        }
-      }
-
-      html += "</tr>\r\n";
-    }
-
-    headers = rows[0];
-    delete rows[0];
     // generateStaticGraph(columns[0], columns[6], "graph");
-    generateDropdown(columns,headers);
+    generateDropdown(columns, headers);
     $("#contents").html(html);
   };
   reader.onerror = function() {
@@ -252,90 +181,114 @@ function printTable(file) {
   };
 
   // generateDynamicGraph();
-  
 }
-
 
 // Dropdown + Graph
 
-function generateDropdown(columnObject,headerObject){
+function generateDropdown(columnObject, headerArray) {
+  var arrayColumnRange = [...Array(headerArray.length).keys()];
+  var t = columnObject[0];
+
   function makeTrace(i) {
-
     return {
-        x:columnObject[0],
-        y: columnObject[i],
-        line: { 
-            shape: 'line' ,
-            color: 'blue'
-        },
-        visible: i === 0,
-        name: headerObject[i],
-  
+      x: columnObject[0],
+      y: columnObject[i],
+      line: {
+        shape: "line",
+        color: "blue"
+      },
+
+      visible: i === 0,
+      name: headerArray[i]
     };
+  }  
+
+  function generateButtonDropdowns(rangeList, headerArray) {
+    result = [];
+    for (var i in rangeList) {
+      var temp = Object();
+      var boolList = Array(rangeList.length).fill(false);
+      boolList[i] = true;
+      temp["method"] = "restyle";
+      temp["args"] = ["visible", boolList];
+      temp["label"] = headerArray[i];
+      result.push(temp);
+    }
+    return result;
   }
 
-  var arrayColumnRange = [...Array(headers.length).keys()];
-
-  function generateButtonDropdowns(rangeList,headerList){
-      result = [];
-      for(var i in rangeList){
-        var temp = Object();
-        var boolList = Array(rangeList.length).fill(false);
-        boolList[i] = true
-        temp['method'] = 'restyle';
-        temp['args'] = ['visible',boolList];
-        temp['label'] = headerList[i];
-        result.push(temp);
-
-      }
-      return result;
-  }
-
-  Plotly.newPlot('graph', arrayColumnRange.map(makeTrace), {
-    updatemenus: [      
-     {
+  var layout = {
+    title: {
+      text: selectedColumn === undefined ? "" : selectedColumn,
+      font: {
+        family: "Montserrat",
+        size: 36
+      },
+      xref: "paper",
+      x: window.innerWidth / 2
+    },
+    updatemenus: [
+      {
         y: 1,
-        yanchor: 'top',
-        buttons: generateButtonDropdowns(arrayColumnRange,headerObject),
-    }],
-  });
+        yanchor: "top",
+        buttons: generateButtonDropdowns(arrayColumnRange, headerArray)
+      }
+    ],
+    sliders: [{
+      currentvalue: {
+        prefix: 't = ',
+        xanchor: 'right'
+      },
+      pad: {l: 130, t: 30},
+      transition: {
+        duration: 0,
+      },
+      steps: t.map(t => ({
+        label: t,
+        method: 'animate',
+        args: [[t], {
+          frame: {duration: 0, redraw: false},
+          mode: 'immediate',
+        }]
+      }))
+    }]
+  };
 
-  
+  Plotly.newPlot("graph", arrayColumnRange.map(makeTrace), layout);
 
-  
-  // Show Annotations on graph 
+  // Show Annotations on graph
   myPlot.on("plotly_click", function(data) {
     for (var i = 0; i < data.points.length; i++) {
       annotate_text =
         "x = " + data.points[i].x + "; y = " + data.points[i].y.toPrecision(4);
-  
+
       annotation = {
         text: annotate_text,
         x: data.points[i].x,
         y: parseFloat(data.points[i].y.toPrecision(4))
       };
- 
+
       const checkText = obj => obj.text === annotation.text;
-      if (global_annotations.some(checkText)){
-          global_annotations = global_annotations.filter(function(e) { return e !== annotation })
-      }else{
-          global_annotations.push(annotation);
+      if (global_annotations.some(checkText)) {
+        global_annotations = global_annotations.filter(function(e) {
+          return e !== annotation;
+        });
+      } else {
+        global_annotations.push(annotation);
       }
-  
-      console.log( global_annotations)
+
+      console.log(global_annotations);
       Plotly.relayout("graph", { annotations: global_annotations });
     }
   });
 
-
-
-  myPlot.on("plotly_restyle",function(data){
-    console.log(data[0]['visible']);
-    const isTrue = (element) => element === true;
-    var visIndex = data[0]['visible'].findIndex(isTrue);
-    alert(headers[visIndex]);
-     
-  })
+  // Retrieve name of column selected
+  myPlot.on("plotly_restyle", function(data) {
+    const isTrue = element => element === true;
+    var visIndex = data[0]["visible"].findIndex(isTrue);
+    selectedColumn = headerArray[visIndex];
+    Plotly.relayout("graph", { title: selectedColumn });
+  });
 }
 
 // Clear Annotations
