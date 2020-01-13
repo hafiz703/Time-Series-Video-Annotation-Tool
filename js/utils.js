@@ -25,10 +25,53 @@ function isAPIAvailable() {
     }
   }
 
+  var observeDOM = (function(){
+    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+  
+    return function( obj, callback ){
+      if( !obj || !obj.nodeType === 1 ) return; // validation
+  
+      if( MutationObserver ){
+        // define a new observer
+        var obs = new MutationObserver(function(mutations, observer){
+            callback(mutations);
+        })
+        // have the observer observe foo for changes in children
+        obs.observe( obj, { childList:true, subtree:true });
+      }
+      
+      else if( window.addEventListener ){
+        obj.addEventListener('DOMNodeInserted', callback, false);
+        obj.addEventListener('DOMNodeRemoved', callback, false);
+      }
+    }
+  })();
+  
+  //------------< DEMO BELOW >----------------
+  // add item
+   
+  // var listElm = document.querySelector('.slider-label .user-select-none');
+  
+   
+      
+  // // Observe a specific DOM element:
+  // observeDOM( listElm, function(m){ 
+  //    var addedNodes = [], removedNodes = [];
+  
+  //    m.forEach(record => record.addedNodes.length &  addedNodes.push(...record.addedNodes))
+     
+  //    m.forEach(record => record.removedNodes.length & removedNodes.push(...record.removedNodes))
+
  
 
 
-
+  
+  // //   // console.clear();
+  //   console.log('Added:', addedNodes, 'Removed:', removedNodes);
+  // });
+  
+  
+  
 
 
 // old gen graph code

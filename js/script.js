@@ -12,15 +12,11 @@ var video_options = {
 
 var myPlot = document.getElementById("graph");
 var global_annotations = [];
-var layout = {
-  hovermode: "closest",
-  title: "$y"
-};
 var frequency = 100;
 // var columns = new Object();
 // var rows = new Object();
 // var headers = [];
-var selectedColumn;
+ 
 
 // Initialize video component
 var mplayer = videojs("my-video", video_options, function onPlayerReady() {
@@ -49,6 +45,11 @@ function generateDynamicGraph() {
   function getData() {
     return Math.random();
   }
+
+  var layout = {
+    hovermode: "closest",
+    title: "$y"
+  };
   Plotly.newPlot("chart", [
     {
       y: [getData()],
@@ -189,6 +190,8 @@ function printTable(file) {
   };
 
   $("#loader").hide();
+
+  
 
   // generateDynamicGraph();
 }
@@ -339,8 +342,18 @@ function initializeDropdowns(textArray, selector,columnObject) {
   }
 
   function updateColumn(){
-    selectedColumn = selector.value;      
-    plotlyPlot(columnObject[0],columnObject[selector.selectedIndex],selectedColumn)
+    
+    setTimeout(function() {
+      $("#loader").show();  
+    }, 100);
+
+    setTimeout(function() {
+      plotlyPlot(columnObject[0],columnObject[selector.selectedIndex],selector.value);
+      $("#loader").hide(); 
+    }, 500);
+    
+    
+    
   }
 
   selector.addEventListener('change', updateColumn, false);
