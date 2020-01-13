@@ -80,8 +80,6 @@ function generateDynamicGraph() {
   }, frequency);
 }
 
-// generateGraph();
-
 // Video
 $(document).on("click", "#playPause", function(e) {
   e.preventDefault();
@@ -110,10 +108,9 @@ this.onFileChange = function() {
 if (isAPIAvailable()) {
   $("#csvfile").bind("change", handleFileSelect);
   $("#csvfile").bind("click", function() {
-    setTimeout(function() {       
+    setTimeout(function() {
       $("#loader").show();
     }, 1000);
-   
   });
 }
 
@@ -132,6 +129,7 @@ function handleFileSelect(evt) {
 
   // post the results
   $("#list").append(output);
+  
 }
 
 //Table utils
@@ -175,10 +173,15 @@ function printTable(file) {
   reader.onload = function(event) {
     var csv = event.target.result;
     var data = $.csv.toArrays(csv);
+    var columnSelector = document.querySelector(".columndata");
+
     const [html, rows, columns, headers] = parseCSV(data);
 
     // generateStaticGraph(columns[0], columns[6], "graph");
     generateGraph(columns, headers);
+    
+    // initialize dropdowns
+    initializeDropdowns(headers, columnSelector,columns);
     $("#contents").html(html);
   };
   reader.onerror = function() {
@@ -190,16 +193,14 @@ function printTable(file) {
   // generateDynamicGraph();
 }
 
-// Generate Graph
-function generateGraph(columnObject, headerArray) {
-  // var arrayColumnRange = [...Array(headerArray.length).keys()];
-  var t = columnObject[0];
 
-  Plotly.plot("graph", {
+function plotlyPlot(x_,y_,selectedcolumn){
+  var t = x_;
+  Plotly.newPlot("graph", {
     data: [
       {
         x: t,
-        y: columnObject[2],
+        y: y_,
         id: t,
         mode: "lines+markers",
         transforms: [
@@ -216,7 +217,7 @@ function generateGraph(columnObject, headerArray) {
       xaxis: { autorange: false, range: [0, t.length] },
       yaxis: { autorange: true },
       title: {
-        text: selectedColumn === undefined ? "" : selectedColumn,
+        text: selectedcolumn === undefined ? "" : selectedcolumn,
         font: {
           family: "Montserrat",
           size: 36
@@ -292,40 +293,14 @@ function generateGraph(columnObject, headerArray) {
       data: [{ "transforms[0].value": t }]
     }))
   });
+}
 
-  // Show Annotations on graph
-  // myPlot.on("plotly_click", function(data) {
-  //   for (var i = 0; i < data.points.length; i++) {
-  //     annotate_text =
-  //       "x = " + data.points[i].x + "; y = " + data.points[i].y.toPrecision(4);
+// Generate Graph
+function generateGraph(columnObject, headerArray) {
+  // var arrayColumnRange = [...Array(headerArray.length).keys()];
+  var t = columnObject[0];
+  plotlyPlot(t,t,headerArray[0]);
 
-  //     annotation = {
-  //       text: annotate_text,
-  //       x: data.points[i].x,
-  //       y: parseFloat(data.points[i].y.toPrecision(4))
-  //     };
-
-  //     const checkText = obj => obj.text === annotation.text;
-  //     if (global_annotations.some(checkText)) {
-  //       global_annotations = global_annotations.filter(function(e) {
-  //         return e !== annotation;
-  //       });
-  //     } else {
-  //       global_annotations.push(annotation);
-  //     }
-
-  //     console.log(global_annotations);
-  //     Plotly.relayout("graph", { annotations: global_annotations });
-  //   }
-  // });
-
-  // // Retrieve name of column selected
-  // myPlot.on("plotly_restyle", function(data) {
-  //   const isTrue = element => element === true;
-  //   var visIndex = data[0]["visible"].findIndex(isTrue);
-  //   selectedColumn = headerArray[visIndex];
-  //   Plotly.relayout("graph", { title: selectedColumn });
-  // });
 
   myPlot.on("plotly_animated", function(d) {
     Plotly.relayout("graph", {
@@ -335,32 +310,40 @@ function generateGraph(columnObject, headerArray) {
   });
 
   myPlot.on("plotly_selected", function(eventData) {
-    // var N = 1000;
-    // var color1 = '#7b3294';
-    // var color1Light = '#c2a5cf';
-
     var x = [];
     var y = [];
-
-    // var colors = [];
-    // for(var i = 0; i < N; i++) colors.push(color1Light);
 
     eventData.points.forEach(function(pt) {
       x.push(pt.x);
       y.push(pt.y);
-      // colors[pt.pointNumber] = color1;
     });
 
     alert(x, y);
     //TODO : x,y update in table
-
-    // Plotly.restyle(myPlot, {
-    //   x: [x, y],
-    //   xbins: {}
-    // }, [1, 2]);
-
-    // Plotly.restyle(myPlot, 'marker.color', [colors], [0]);
   });
+
+
+
+  
+  
+
+
+}
+
+function initializeDropdowns(textArray, selector,columnObject) {
+  selector.style.visibility="visible";
+  for (var i = 0; i < textArray.length;  i++) {
+      var currentOption = document.createElement('option');
+      currentOption.text = textArray[i];       
+      selector.appendChild(currentOption);
+  }
+
+  function updateColumn(){
+    selectedColumn = selector.value;      
+    plotlyPlot(columnObject[0],columnObject[selector.selectedIndex],selectedColumn)
+  }
+
+  selector.addEventListener('change', updateColumn, false);
 }
 
 $(document).on(
