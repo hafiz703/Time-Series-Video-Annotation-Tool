@@ -1,7 +1,7 @@
 //********************//
 // Global variables //
 //********************//
- 
+
 var isPaused = true;
 var frequency = 100;
 // Video options
@@ -16,7 +16,7 @@ var layout = {
   hovermode: "closest",
   title: "$y"
 };
-var frequency = 10/100 ;
+var frequency = 100;
 // var columns = new Object();
 // var rows = new Object();
 // var headers = [];
@@ -98,12 +98,8 @@ $(document).on("click", "#playPause", function(e) {
 // Video Picker
 
 this.onFileChange = function() {
-  //   this.mplayer.errorDisplay(true);
-  //   $('#my-video').css('visibility','visible');
   let file = document.getElementById("videofile");
-
   this.mplayer.src("./" + file.files[0].name);
-
   this.mplayer.pause();
 };
 
@@ -113,8 +109,14 @@ this.onFileChange = function() {
 // *
 if (isAPIAvailable()) {
   $("#csvfile").bind("change", handleFileSelect);
+  $("#csvfile").bind("click", function() {
+    setTimeout(function() {       
+      $("#loader").show();
+    }, 1000);
+   
+  });
 }
- 
+
 function handleFileSelect(evt) {
   var files = evt.target.files; // FileList object
   var file = files[0];
@@ -183,6 +185,8 @@ function printTable(file) {
     alert("Unable to read " + file.fileName);
   };
 
+  $("#loader").hide();
+
   // generateDynamicGraph();
 }
 
@@ -191,86 +195,103 @@ function generateGraph(columnObject, headerArray) {
   // var arrayColumnRange = [...Array(headerArray.length).keys()];
   var t = columnObject[0];
 
-  Plotly.plot('graph', {
-    data: [{
-      x: t,
-      y: columnObject[2],
-      id: t,
-      mode: 'lines+markers',
-      transforms: [{
-        type: 'filter',
-        operation: '<=',
-        target: t,
-        value: 0.0
-      }]
-    }],
-    layout: {    
-      xaxis: {autorange: false, range:[0, t.length]},
-      yaxis: {autorange: true},
+  Plotly.plot("graph", {
+    data: [
+      {
+        x: t,
+        y: columnObject[2],
+        id: t,
+        mode: "lines+markers",
+        transforms: [
+          {
+            type: "filter",
+            operation: "<=",
+            target: t,
+            value: 0.0
+          }
+        ]
+      }
+    ],
+    layout: {
+      xaxis: { autorange: false, range: [0, t.length] },
+      yaxis: { autorange: true },
       title: {
         text: selectedColumn === undefined ? "" : selectedColumn,
         font: {
           family: "Montserrat",
           size: 36
         },
-        dragmode: 'lasso',
+        dragmode: "lasso",
         xref: "paper",
         x: window.innerWidth / 2
       },
-      updatemenus: [{
-        type: 'buttons',
-        xanchor: 'left',
-        yanchor: 'top',
-        direction: 'right',
-        x: 0,
-        y: 0,
-        pad: {t: 60},
-        showactive: false,
-        buttons: [{
-          label: 'Play',
-          method: 'animate',
-          args: [null, {
-            transition: {duration: 0},
-            frame: {duration: frequency, redraw: false},
-            mode: 'immediate',
-            fromcurrent: true,
-          }]
-        }, {
-          label: 'Pause',
-          method: 'animate',
-          args: [[null], {
-            frame: {duration: 0, redraw: false},
-            mode: 'immediate',
-          }]
-        }]
-      }],
-      sliders: [{
-        currentvalue: {
-          prefix: 't = ',
-          xanchor: 'right'
-        },
-        pad: {l: 130, t: 30},
-        transition: {
-          duration: 0,
-        },
-        steps: t.map(t => ({
-          label: t,
-          method: 'animate',
-          args: [[t], {
-            frame: {duration: 0, redraw: false},
-            mode: 'immediate',
-          }]
-        }))
-      }]
+      updatemenus: [
+        {
+          type: "buttons",
+          xanchor: "left",
+          yanchor: "top",
+          direction: "right",
+          x: 0,
+          y: 0,
+          pad: { t: 60 },
+          showactive: false,
+          buttons: [
+            {
+              label: "Play",
+              method: "animate",
+              args: [
+                null,
+                {
+                  transition: { duration: 0 },
+                  frame: { duration: frequency, redraw: false },
+                  mode: "immediate",
+                  fromcurrent: true
+                }
+              ]
+            },
+            {
+              label: "Pause",
+              method: "animate",
+              args: [
+                [null],
+                {
+                  frame: { duration: 0, redraw: false },
+                  mode: "immediate"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      sliders: [
+        {
+          currentvalue: {
+            prefix: "t = ",
+            xanchor: "right"
+          },
+          pad: { l: 130, t: 30 },
+          transition: {
+            duration: 0
+          },
+          steps: t.map(t => ({
+            label: t,
+            method: "animate",
+            args: [
+              [t],
+              {
+                frame: { duration: 0, redraw: false },
+                mode: "immediate"
+              }
+            ]
+          }))
+        }
+      ]
     },
     frames: t.map(t => ({
       name: t,
-      data: [{'transforms[0].value': t}]
+      data: [{ "transforms[0].value": t }]
     }))
-  })
-
-   
- 
+  });
 
   // Show Annotations on graph
   // myPlot.on("plotly_click", function(data) {
@@ -307,51 +328,49 @@ function generateGraph(columnObject, headerArray) {
   // });
 
   myPlot.on("plotly_animated", function(d) {
-     
-    Plotly.relayout('graph', {
-      'xaxis.autorange': true,
-      'yaxis.autorange': true
-  });
- });
-
- myPlot.on('plotly_selected', function(eventData) {
-  // var N = 1000;
-  // var color1 = '#7b3294';
-  // var color1Light = '#c2a5cf'; 
-
-  var x = [];
-  var y = [];
-  
-
-  // var colors = [];
-  // for(var i = 0; i < N; i++) colors.push(color1Light);
-
-  eventData.points.forEach(function(pt) {
-    x.push(pt.x);
-    y.push(pt.y);
-    // colors[pt.pointNumber] = color1;
+    Plotly.relayout("graph", {
+      "xaxis.autorange": true,
+      "yaxis.autorange": true
+    });
   });
 
-  alert(x,y);
-  //TODO : x,y update in table
+  myPlot.on("plotly_selected", function(eventData) {
+    // var N = 1000;
+    // var color1 = '#7b3294';
+    // var color1Light = '#c2a5cf';
 
-  // Plotly.restyle(myPlot, {
-  //   x: [x, y],
-  //   xbins: {}
-  // }, [1, 2]);
+    var x = [];
+    var y = [];
 
-  // Plotly.restyle(myPlot, 'marker.color', [colors], [0]);
-});
+    // var colors = [];
+    // for(var i = 0; i < N; i++) colors.push(color1Light);
 
+    eventData.points.forEach(function(pt) {
+      x.push(pt.x);
+      y.push(pt.y);
+      // colors[pt.pointNumber] = color1;
+    });
 
+    alert(x, y);
+    //TODO : x,y update in table
 
+    // Plotly.restyle(myPlot, {
+    //   x: [x, y],
+    //   xbins: {}
+    // }, [1, 2]);
+
+    // Plotly.restyle(myPlot, 'marker.color', [colors], [0]);
+  });
 }
 
-
-$(document).on("change", ".slider-group .slider-label user-select-none", function(e) {
-  e.preventDefault();
-  console.log("changed");
-});
+$(document).on(
+  "change",
+  ".slider-group .slider-label user-select-none",
+  function(e) {
+    e.preventDefault();
+    console.log("changed");
+  }
+);
 
 // Clear Annotations
 $(document).on("click", "#clearAnnotations", function(e) {
@@ -359,6 +378,3 @@ $(document).on("click", "#clearAnnotations", function(e) {
   global_annotations = [];
   Plotly.relayout("graph", { annotations: global_annotations });
 });
-
-
- 
