@@ -12,18 +12,17 @@ var video_options = {
 
 var myPlot = document.getElementById("graph");
 var global_annotations = [];
-var frequency = 100;
+var frequency = 10;
 // var columns = new Object();
 // var rows = new Object();
 // var headers = [];
- 
 
 // Initialize video component
 var mplayer = videojs("my-video", video_options, function onPlayerReady() {
   videojs.log("Your player is ready!");
 
   // In this context, `this` is the player that was created by Video.js.
-  this.play();
+  this.pause();
 
   // How about an event listener?
   this.on("ended", function() {
@@ -99,7 +98,7 @@ $(document).on("click", "#playPause", function(e) {
 this.onFileChange = function() {
   let file = document.getElementById("videofile");
   this.mplayer.src("./" + file.files[0].name);
-  this.mplayer.pause();
+  // this.mplayer.pause();
 };
 
 // CSV file picker
@@ -111,7 +110,7 @@ if (isAPIAvailable()) {
   $("#csvfile").bind("click", function() {
     setTimeout(function() {
       $("#loader").show();
-    }, 1000);
+    }, 500);
   });
 }
 
@@ -130,7 +129,6 @@ function handleFileSelect(evt) {
 
   // post the results
   $("#list").append(output);
-  
 }
 
 //Table utils
@@ -180,9 +178,9 @@ function printTable(file) {
 
     // generateStaticGraph(columns[0], columns[6], "graph");
     generateGraph(columns, headers);
-    
+
     // initialize dropdowns
-    initializeDropdowns(headers, columnSelector,columns);
+    initializeDropdownsAndSlider(headers, columnSelector, columns);
     $("#contents").html(html);
   };
   reader.onerror = function() {
@@ -191,13 +189,10 @@ function printTable(file) {
 
   $("#loader").hide();
 
-  
-
   // generateDynamicGraph();
 }
 
-
-function plotlyPlot(x_,y_,selectedcolumn){
+function plotlyPlot(x_, y_, selectedcolumn) {
   var t = x_;
   Plotly.newPlot("graph", {
     data: [
@@ -302,8 +297,7 @@ function plotlyPlot(x_,y_,selectedcolumn){
 function generateGraph(columnObject, headerArray) {
   // var arrayColumnRange = [...Array(headerArray.length).keys()];
   var t = columnObject[0];
-  plotlyPlot(t,t,headerArray[0]);
-
+  plotlyPlot(t, t, headerArray[0]);
 
   myPlot.on("plotly_animated", function(d) {
     Plotly.relayout("graph", {
@@ -324,49 +318,57 @@ function generateGraph(columnObject, headerArray) {
     alert(x, y);
     //TODO : x,y update in table
   });
-
-
-
-  
-  
-
-
 }
 
-function initializeDropdowns(textArray, selector,columnObject) {
-  selector.style.visibility="visible";
-  for (var i = 0; i < textArray.length;  i++) {
-      var currentOption = document.createElement('option');
-      currentOption.text = textArray[i];       
-      selector.appendChild(currentOption);
+function initializeDropdownsAndSlider(textArray, selector, columnObject) {
+  // Init dropdown
+  $(".control-row").css("visibility", "visible");
+  for (var i = 0; i < textArray.length; i++) {
+    var currentOption = document.createElement("option");
+    currentOption.text = textArray[i];
+    selector.appendChild(currentOption);
   }
 
-  function updateColumn(){
-    
+  function updateColumn() {
     setTimeout(function() {
-      $("#loader").show();  
+      $("#loader").show();
     }, 100);
 
     setTimeout(function() {
-      plotlyPlot(columnObject[0],columnObject[selector.selectedIndex],selector.value);
-      $("#loader").hide(); 
+      plotlyPlot(
+        columnObject[0],
+        columnObject[selector.selectedIndex],
+        selector.value
+      );
+      $("#loader").hide();
     }, 500);
-    
-    
-    
   }
+  selector.addEventListener("change", updateColumn, false);
 
-  selector.addEventListener('change', updateColumn, false);
-}
+  // Init slider
+  $("#slider").slider({
+    orientation: "horizontal",
+    value: 0,
+    max: columnObject[0].length,
+    slide: function(event, ui) {
+      mplayer.currentTime(ui.value / frequency);
 
-$(document).on(
-  "change",
-  ".slider-group .slider-label user-select-none",
-  function(e) {
+      $("#sliderVal").val(ui.value);
+    }
+  });
+  $("#sliderVal").val($("#slider").slider("value"));
+
+  $("#slider").on("mousedown", function(e) {
     e.preventDefault();
-    console.log("changed");
-  }
-);
+    alert("mousedown");
+  });
+
+  //slider range pointer mouseup event
+  $("#slider").on("mouseup", function(e) {
+    e.preventDefault();
+    alert("mouseup");
+  });
+}
 
 // Clear Annotations
 $(document).on("click", "#clearAnnotations", function(e) {

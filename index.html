@@ -9,15 +9,24 @@
       <div class="double-bounce2"></div>
     </div>
 
-
     <div class="navbar"><span>Time Series & Video Annotation Tool</span></div>
     <div class="wrapper">
-      <div id="chart"></div> 
+      <div id="chart"></div>
       <div id="graph"></div>
 
       <div class="control-row" style="visibility: hidden;">
-          Column: <select class="columndata">
-          </select>
+        Column:
+        <select class="columndata"> </select>
+
+        <p>
+          <label for="sliderVal">Value:</label>
+          <input
+            type="text"
+            id="sliderVal"
+            style="border:0; color:red; font-weight:bold;"
+          />
+        </p>
+        <div id="slider"></div>
       </div>
 
       <button type="button" id="clearAnnotations">Clear Annotations</button>
@@ -89,7 +98,12 @@
   <link rel="stylesheet" href="./css/loader.css" />
 
   <!-- jQuery library -->
+  <link
+    href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
+    rel="stylesheet"
+  />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 
   <!-- Popper JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -106,6 +120,7 @@
 
   <!-- Jquery CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.8/jquery.csv.js"></script>
+
   <script src="./js//utils.js"></script>
   <script src="./js/script.js"></script>
 </html>
