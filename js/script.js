@@ -80,19 +80,6 @@ function generateDynamicGraph() {
   }, frequency);
 }
 
-// Video
-$(document).on("click", "#playPause", function(e) {
-  e.preventDefault();
-  isPaused = !isPaused;
-  if (isPaused) {
-    $("#playPause").html("Play");
-    mplayer.pause();
-  } else {
-    $("#playPause").html("Pause");
-    mplayer.play();
-  }
-});
-
 // Video Picker
 
 this.onFileChange = function() {
@@ -180,7 +167,7 @@ function printTable(file) {
     generateGraph(columns, headers);
 
     // initialize dropdowns
-    initializeDropdownsAndSlider(headers, columnSelector, columns);
+    initializeUIWidgets(headers, columnSelector, columns);
     $("#contents").html(html);
   };
   reader.onerror = function() {
@@ -192,27 +179,29 @@ function printTable(file) {
   // generateDynamicGraph();
 }
 
-function plotlyPlot(x_, y_, selectedcolumn) {
-  var t = x_;
-  Plotly.newPlot("graph", {
+function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
+  Plotly.newPlot(divName, {
     data: [
       {
-        x: t,
+        x: x_,
         y: y_,
-        id: t,
+
         mode: "lines+markers",
-        transforms: [
-          {
-            type: "filter",
-            operation: "<=",
-            target: t,
-            value: 0.0
+        marker: {
+          color: "rgb(85, 178, 250)",
+          line: {
+            color: "rgb(0, 0, 0)",
+            width: 0.5
           }
-        ]
+        },
+
+        line: {
+          color: "rgb(21, 0, 158)"
+        }
       }
     ],
     layout: {
-      xaxis: { autorange: false, range: [0, t.length] },
+      xaxis: { autorange: false, range: [0, x_.length] },
       yaxis: { autorange: true },
       title: {
         text: selectedcolumn === undefined ? "" : selectedcolumn,
@@ -223,73 +212,8 @@ function plotlyPlot(x_, y_, selectedcolumn) {
         dragmode: "lasso",
         xref: "paper",
         x: window.innerWidth / 2
-      },
-      updatemenus: [
-        {
-          type: "buttons",
-          xanchor: "left",
-          yanchor: "top",
-          direction: "right",
-          x: 0,
-          y: 0,
-          pad: { t: 60 },
-          showactive: false,
-          buttons: [
-            {
-              label: "Play",
-              method: "animate",
-              args: [
-                null,
-                {
-                  transition: { duration: 0 },
-                  frame: { duration: frequency, redraw: false },
-                  mode: "immediate",
-                  fromcurrent: true
-                }
-              ]
-            },
-            {
-              label: "Pause",
-              method: "animate",
-              args: [
-                [null],
-                {
-                  frame: { duration: 0, redraw: false },
-                  mode: "immediate"
-                }
-              ]
-            }
-          ]
-        }
-      ],
-      sliders: [
-        {
-          currentvalue: {
-            prefix: "t = ",
-            xanchor: "right"
-          },
-          pad: { l: 130, t: 30 },
-          transition: {
-            duration: 0
-          },
-          steps: t.map(t => ({
-            label: t,
-            method: "animate",
-            args: [
-              [t],
-              {
-                frame: { duration: 0, redraw: false },
-                mode: "immediate"
-              }
-            ]
-          }))
-        }
-      ]
-    },
-    frames: t.map(t => ({
-      name: t,
-      data: [{ "transforms[0].value": t }]
-    }))
+      }
+    }
   });
 }
 
@@ -299,12 +223,9 @@ function generateGraph(columnObject, headerArray) {
   var t = columnObject[0];
   plotlyPlot(t, t, headerArray[0]);
 
-  myPlot.on("plotly_animated", function(d) {
-    Plotly.relayout("graph", {
-      "xaxis.autorange": true,
-      "yaxis.autorange": true
-    });
-  });
+  // myPlot.on("plotly_animated", function(d) {
+
+  // });
 
   myPlot.on("plotly_selected", function(eventData) {
     var x = [];
@@ -320,7 +241,11 @@ function generateGraph(columnObject, headerArray) {
   });
 }
 
-function initializeDropdownsAndSlider(textArray, selector, columnObject) {
+function fmtMSS(s) {
+  return (s - (s %= 60)) / 60 + (9 < s ? ":" : ":0") + Math.round(s * 10) / 10;
+}
+
+function initializeUIWidgets(textArray, selector, columnObject) {
   // Init dropdown
   $(".control-row").css("visibility", "visible");
   for (var i = 0; i < textArray.length; i++) {
@@ -329,9 +254,46 @@ function initializeDropdownsAndSlider(textArray, selector, columnObject) {
     selector.appendChild(currentOption);
   }
 
+  // Init slider
+  $("#slider").slider({
+    orientation: "horizontal",
+    value: 0,
+    max: columnObject[0].length,
+    slide: function(event, ui) {
+      var secs = ui.value / frequency;
+      mplayer.currentTime(secs);
+
+      $("#sliderVal").val(fmtMSS(secs) + " || " + ui.value);
+
+      Plotly.animate(
+        "graph",
+        {
+          data: [
+            {
+              x: columnObject[0].slice(0, ui.value),
+              y: columnObject[selector.selectedIndex].slice(0, ui.value)
+            }
+          ]
+        },
+        {
+          transition: {
+            duration: 0
+          },
+          frame: { duration: 0, redraw: false }
+        }
+      );
+
+      Plotly.relayout("graph", {
+        "xaxis.autorange": true,
+        "yaxis.autorange": true
+      });
+    }
+  });
+
   function updateColumn() {
     setTimeout(function() {
       $("#loader").show();
+      $("#slider").slider("value", 0);
     }, 100);
 
     setTimeout(function() {
@@ -345,28 +307,36 @@ function initializeDropdownsAndSlider(textArray, selector, columnObject) {
   }
   selector.addEventListener("change", updateColumn, false);
 
-  // Init slider
-  $("#slider").slider({
-    orientation: "horizontal",
-    value: 0,
-    max: columnObject[0].length,
-    slide: function(event, ui) {
-      mplayer.currentTime(ui.value / frequency);
-
-      $("#sliderVal").val(ui.value);
-    }
-  });
   $("#sliderVal").val($("#slider").slider("value"));
 
   $("#slider").on("mousedown", function(e) {
     e.preventDefault();
-    alert("mousedown");
+    // alert("mousedown");
   });
 
   //slider range pointer mouseup event
   $("#slider").on("mouseup", function(e) {
     e.preventDefault();
-    alert("mouseup");
+    // alert("mouseup");
+  });
+
+  // Video
+  $(document).on("click", "#playPause", function(e) {
+    e.preventDefault();
+    isPaused = !isPaused;
+    if (isPaused) {
+      $("#playPause").html("Play");
+      mplayer.pause();
+    } else {
+      $("#playPause").html("Pause");
+      mplayer.play();
+      
+      setInterval(function() {
+        
+        $("#slider").slider("value", $("#slider").slider("value") + 1);
+        $("#slider").data("uiSlider")._change();
+      }, frequency);
+    }
   });
 }
 
