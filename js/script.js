@@ -3,7 +3,7 @@
 //********************//
 
 var isPaused = true;
-var frequency = 100;
+ 
 // Video options
 var video_options = {
   autoplay: false
@@ -186,7 +186,8 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
         x: x_,
         y: y_,
 
-        mode: "lines+markers",
+        // mode: "lines+markers",
+        mode: "marker",
         marker: {
           color: "rgb(85, 178, 250)",
           line: {
@@ -241,9 +242,7 @@ function generateGraph(columnObject, headerArray) {
   });
 }
 
-function fmtMSS(s) {
-  return (s - (s %= 60)) / 60 + (9 < s ? ":" : ":0") + Math.round(s * 10) / 10;
-}
+
 
 function initializeUIWidgets(textArray, selector, columnObject) {
   // Init dropdown
@@ -254,39 +253,55 @@ function initializeUIWidgets(textArray, selector, columnObject) {
     selector.appendChild(currentOption);
   }
 
+  function sliderCallback(ui) {
+    var secs = ui.value / frequency;
+    mplayer.currentTime(secs);
+
+    $("#sliderVal").val(fmtMSS(secs) + " || " + ui.value);
+
+    function filterValues(arr,val){
+         
+        var nearThousand = Math.floor(val/1000)*1000;
+        return arr.slice(nearThousand, val);
+         
+    }
+
+    Plotly.animate(
+      "graph",
+      {
+        data: [
+          {
+            // x: columnObject[0].slice(0, ui.value),
+            // y: columnObject[selector.selectedIndex].slice(0, ui.value)
+            x: filterValues(columnObject[0],ui.value),
+            y: filterValues(columnObject[selector.selectedIndex],ui.value)
+          }
+        ]
+      },
+      {
+        transition: {
+          duration: 0
+        },
+        frame: { duration: 0, redraw: false }
+      }
+    );
+
+    // Plotly.relayout("graph", {
+    //   "xaxis.autorange": true,
+    //   "yaxis.autorange": true
+    // });
+  }
+
   // Init slider
   $("#slider").slider({
     orientation: "horizontal",
     value: 0,
     max: columnObject[0].length,
     slide: function(event, ui) {
-      var secs = ui.value / frequency;
-      mplayer.currentTime(secs);
-
-      $("#sliderVal").val(fmtMSS(secs) + " || " + ui.value);
-
-      Plotly.animate(
-        "graph",
-        {
-          data: [
-            {
-              x: columnObject[0].slice(0, ui.value),
-              y: columnObject[selector.selectedIndex].slice(0, ui.value)
-            }
-          ]
-        },
-        {
-          transition: {
-            duration: 0
-          },
-          frame: { duration: 0, redraw: false }
-        }
-      );
-
-      Plotly.relayout("graph", {
-        "xaxis.autorange": true,
-        "yaxis.autorange": true
-      });
+      sliderCallback(ui);
+    },
+    change: function(event, ui) {
+      sliderCallback(ui);
     }
   });
 
@@ -309,16 +324,6 @@ function initializeUIWidgets(textArray, selector, columnObject) {
 
   $("#sliderVal").val($("#slider").slider("value"));
 
-  $("#slider").on("mousedown", function(e) {
-    e.preventDefault();
-    // alert("mousedown");
-  });
-
-  //slider range pointer mouseup event
-  $("#slider").on("mouseup", function(e) {
-    e.preventDefault();
-    // alert("mouseup");
-  });
 
   // Video
   $(document).on("click", "#playPause", function(e) {
@@ -330,13 +335,17 @@ function initializeUIWidgets(textArray, selector, columnObject) {
     } else {
       $("#playPause").html("Pause");
       mplayer.play();
-      
-      setInterval(function() {
-        
-        $("#slider").slider("value", $("#slider").slider("value") + 1);
-        $("#slider").data("uiSlider")._change();
-      }, frequency);
     }
+
+    setInterval(function() {
+      if (!isPaused) {
+        $("#slider").slider(
+          "option",
+          "value",
+          $("#slider").slider("value") + 1
+        );
+      }
+    }, 1000/frequency);
   });
 }
 
@@ -346,3 +355,15 @@ $(document).on("click", "#clearAnnotations", function(e) {
   global_annotations = [];
   Plotly.relayout("graph", { annotations: global_annotations });
 });
+
+
+// $("#slider").on("mousedown", function(e) {
+//   e.preventDefault();
+//   // alert("mousedown");
+// });
+
+// //slider range pointer mouseup event
+// $("#slider").on("mouseup", function(e) {
+//   e.preventDefault();
+//   // alert("mouseup");
+// });
