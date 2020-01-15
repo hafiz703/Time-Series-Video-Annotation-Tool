@@ -3,7 +3,7 @@
 //********************//
 
 var isPaused = true;
- 
+
 // Video options
 var video_options = {
   autoplay: false
@@ -186,8 +186,8 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
         x: x_,
         y: y_,
 
-        // mode: "lines+markers",
-        mode: "marker",
+        mode: "lines+markers",
+        mode: "markers",
         marker: {
           color: "rgb(85, 178, 250)",
           line: {
@@ -216,22 +216,10 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
       }
     }
   });
-}
-
-// Generate Graph
-function generateGraph(columnObject, headerArray) {
-  // var arrayColumnRange = [...Array(headerArray.length).keys()];
-  var t = columnObject[0];
-  plotlyPlot(t, t, headerArray[0]);
-
-  // myPlot.on("plotly_animated", function(d) {
-
-  // });
 
   myPlot.on("plotly_selected", function(eventData) {
     var x = [];
-    var y = [];
-
+    var y = [];     
     eventData.points.forEach(function(pt) {
       x.push(pt.x);
       y.push(pt.y);
@@ -242,7 +230,12 @@ function generateGraph(columnObject, headerArray) {
   });
 }
 
+// Generate Graph
+function generateGraph(columnObject, headerArray) {
+  plotlyPlot(columnObject[0], columnObject[0], headerArray[0]);
 
+
+}
 
 function initializeUIWidgets(textArray, selector, columnObject) {
   // Init dropdown
@@ -259,11 +252,9 @@ function initializeUIWidgets(textArray, selector, columnObject) {
 
     $("#sliderVal").val(fmtMSS(secs) + " || " + ui.value);
 
-    function filterValues(arr,val){
-         
-        var nearThousand = Math.floor(val/1000)*1000;
-        return arr.slice(nearThousand, val);
-         
+    function filterValues(arr, val) {
+      var nearThousand = Math.floor(val / 1000) * 1000;
+      return arr.slice(nearThousand, val);
     }
 
     Plotly.animate(
@@ -273,8 +264,8 @@ function initializeUIWidgets(textArray, selector, columnObject) {
           {
             // x: columnObject[0].slice(0, ui.value),
             // y: columnObject[selector.selectedIndex].slice(0, ui.value)
-            x: filterValues(columnObject[0],ui.value),
-            y: filterValues(columnObject[selector.selectedIndex],ui.value)
+            x: filterValues(columnObject[0], ui.value),
+            y: filterValues(columnObject[selector.selectedIndex], ui.value)
           }
         ]
       },
@@ -324,7 +315,6 @@ function initializeUIWidgets(textArray, selector, columnObject) {
 
   $("#sliderVal").val($("#slider").slider("value"));
 
-
   // Video
   $(document).on("click", "#playPause", function(e) {
     e.preventDefault();
@@ -345,7 +335,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
           $("#slider").slider("value") + 1
         );
       }
-    }, 1000/frequency);
+    }, 1000 / frequency);
   });
 }
 
@@ -355,7 +345,6 @@ $(document).on("click", "#clearAnnotations", function(e) {
   global_annotations = [];
   Plotly.relayout("graph", { annotations: global_annotations });
 });
-
 
 // $("#slider").on("mousedown", function(e) {
 //   e.preventDefault();
