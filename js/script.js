@@ -187,7 +187,7 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
         y: y_,
 
         mode: "lines+markers",
-        mode: "markers",
+        // mode: "markers",
         marker: {
           color: "rgb(85, 178, 250)",
           line: {
@@ -219,7 +219,7 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
 
   myPlot.on("plotly_selected", function(eventData) {
     var x = [];
-    var y = [];     
+    var y = [];
     eventData.points.forEach(function(pt) {
       x.push(pt.x);
       y.push(pt.y);
@@ -228,13 +228,13 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
     alert(x, y);
     //TODO : x,y update in table
   });
+
+   
 }
 
 // Generate Graph
 function generateGraph(columnObject, headerArray) {
   plotlyPlot(columnObject[0], columnObject[0], headerArray[0]);
-
-
 }
 
 function initializeUIWidgets(textArray, selector, columnObject) {
