@@ -181,15 +181,20 @@ function printTable(file) {
 
 function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
   Plotly.newPlot(divName, {
+    
     data: [
+       // Plot [0] ie linechart of full data
       {
+        // type: 'scattergl',
         x: x_,
         y: y_,
 
-        mode: "lines+markers",
-        // mode: "markers",
+        mode: "markers+lines",
+        opacity: 0.3,
+         
         marker: {
-          color: "rgb(85, 178, 250)",
+          color: "rgb(21, 0, 158)",
+          size:1,
           line: {
             color: "rgb(0, 0, 0)",
             width: 0.5
@@ -198,6 +203,24 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
 
         line: {
           color: "rgb(21, 0, 158)"
+        }
+      },
+
+      // Plot [1] ie scatter plot that changes with user inputs
+      {
+        type: 'scattergl',
+        x: [],
+        y: [],
+
+        // mode: "lines",
+        mode: "markers",
+        size: 0.05,
+        marker: {
+          color: "rgb(255, 0, 0)",
+          // line: {
+          //   color: "rgb(255, 0, 0)",
+          //   width: 0.5
+          // }
         }
       }
     ],
@@ -228,8 +251,6 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
     alert(x, y);
     //TODO : x,y update in table
   });
-
-   
 }
 
 // Generate Graph
@@ -246,11 +267,14 @@ function initializeUIWidgets(textArray, selector, columnObject) {
     selector.appendChild(currentOption);
   }
 
-  function sliderCallback(ui) {
-    var secs = ui.value / frequency;
+  function setSliderTextValue(newval) {
+    var secs = newval / frequency;
     mplayer.currentTime(secs);
+    $("#sliderVal").val(fmtMSS(secs) + " || " + newval);
+  }
 
-    $("#sliderVal").val(fmtMSS(secs) + " || " + ui.value);
+  function sliderCallback(ui) {
+    setSliderTextValue(ui.value);
 
     function filterValues(arr, val) {
       var nearThousand = Math.floor(val / 1000) * 1000;
@@ -262,12 +286,13 @@ function initializeUIWidgets(textArray, selector, columnObject) {
       {
         data: [
           {
-            // x: columnObject[0].slice(0, ui.value),
-            // y: columnObject[selector.selectedIndex].slice(0, ui.value)
-            x: filterValues(columnObject[0], ui.value),
-            y: filterValues(columnObject[selector.selectedIndex], ui.value)
+            x: columnObject[0].slice(0, ui.value),
+            y: columnObject[selector.selectedIndex].slice(0, ui.value)
+            // x: filterValues(columnObject[0], ui.value),
+            // y: filterValues(columnObject[selector.selectedIndex], ui.value)
           }
-        ]
+        ],
+        traces: [1]
       },
       {
         transition: {
@@ -290,10 +315,10 @@ function initializeUIWidgets(textArray, selector, columnObject) {
     max: columnObject[0].length,
     slide: function(event, ui) {
       sliderCallback(ui);
-    },
-    change: function(event, ui) {
-      sliderCallback(ui);
     }
+    // change: function(event, ui) {
+    //   sliderCallback(ui);
+    // }
   });
 
   function updateColumn() {
@@ -329,10 +354,24 @@ function initializeUIWidgets(textArray, selector, columnObject) {
 
     setInterval(function() {
       if (!isPaused) {
-        $("#slider").slider(
-          "option",
-          "value",
-          $("#slider").slider("value") + 1
+        var currentSliderVal = parseInt($("#slider").slider("value"));
+        // if((currentSliderVal+1)%500==0){
+        //   Plotly.restyle("graph",{
+        //     x:[[]],
+        //     y:[[]]
+        //   },[1])
+        // }
+
+        setSliderTextValue(currentSliderVal);
+        $("#slider").slider("option", "value", currentSliderVal + 1);
+
+        Plotly.extendTraces(
+          "graph",
+          {
+            x: [[currentSliderVal + 1]],
+            y: [[columnObject[selector.selectedIndex][currentSliderVal + 1]]]
+          },
+          [1]
         );
       }
     }, 1000 / frequency);
