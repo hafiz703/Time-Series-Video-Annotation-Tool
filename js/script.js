@@ -30,8 +30,6 @@ var mplayer = videojs("my-video", video_options, function onPlayerReady() {
   });
 });
 
-
-
 // Video Picker
 
 this.onFileChange = function() {
@@ -116,7 +114,8 @@ function printTable(file) {
     const [html, rows, columns, headers] = parseCSV(data);
 
     // generateStaticGraph(columns[0], columns[6], "graph");
-    generateGraph(columns, headers);
+
+    plotlyPlot(columns[0], columns[0], headers[0]);
 
     // initialize dropdowns
     initializeUIWidgets(headers, columnSelector, columns);
@@ -133,49 +132,22 @@ function printTable(file) {
 
 function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
   Plotly.newPlot(divName, {
-    
     data: [
-       // Plot [0] ie linechart of full data
+  
+
+      //  scatter plot that changes with user inputs
       {
-         
-        x: [],
-        y: [],
-        // x:x_,
-        // y:y_,
-
-        mode: "markers",
-        // opacity: 0.5,
-         
-        marker: {
-          color: "rgb(21, 0, 158)",
-          size:0.1,
-          line: {
-            color: "rgb(0, 0, 0)",
-            width: 0.5
-          }
-        },
-
-        line: {
-          color: "rgb(21, 0, 158)"
-        }
-      },
-
-      // Plot [1] ie scatter plot that changes with user inputs
-      {
-        
         x: [],
         y: [],
 
         // mode: "lines",
         mode: "markers+lines",
-        
+
         marker: {
-           
-          color: "rgb(255, 0, 0)",
-          // line: {
-          //   color: "rgb(255, 0, 0)",
-          //   width: 0.5
-          // }
+          color: "rgb(255, 0, 0)"
+        },
+        line: {
+          color: "rgba(255, 0, 0, 0.3)"
         }
       }
     ],
@@ -206,11 +178,6 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
     alert(x, y);
     //TODO : x,y update in table
   });
-}
-
-// Generate Graph
-function generateGraph(columnObject, headerArray) {
-  plotlyPlot(columnObject[0], columnObject[0], headerArray[0]);
 }
 
 function initializeUIWidgets(textArray, selector, columnObject) {
@@ -247,7 +214,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
             // y: filterValues(columnObject[selector.selectedIndex], ui.value)
           }
         ],
-        traces: [1]
+        traces: [0]
       },
       {
         transition: {
@@ -283,11 +250,19 @@ function initializeUIWidgets(textArray, selector, columnObject) {
     }, 100);
 
     setTimeout(function() {
-      plotlyPlot(
+      // plotlyPlot(
+      //   columnObject[0],
+      //   columnObject[selector.selectedIndex],
+      //   selector.value
+      // );
+      updatePointsOnPlot(
         columnObject[0],
         columnObject[selector.selectedIndex],
-        selector.value
+        {
+          title: selector.value
+        }
       );
+
       $("#loader").hide();
     }, 500);
   }
@@ -326,7 +301,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
             x: [[currentSliderVal + 1]],
             y: [[columnObject[selector.selectedIndex][currentSliderVal + 1]]]
           },
-          [1]
+          [0]
         );
       }
     }, 1000 / frequency);
@@ -343,11 +318,7 @@ $(document).on("click", "#clearAnnotations", function(e) {
 // Clear Points
 $(document).on("click", "#clearPoints", function(e) {
   e.preventDefault();
-  Plotly.restyle("graph",{
-    x:[[]],
-    y:[[]]
-  },[1])
-  
+  removePointsOnPlot();
 });
 
 // $("#slider").on("mousedown", function(e) {

@@ -51,6 +51,21 @@ function isAPIAvailable() {
   function fmtMSS(s) {
     return (s - (s %= 60)) / 60 + (9 < s ? ":" : ":0") + Math.round(s * 10) / 10;
   }
+
+  function updatePointsOnPlot(newx,newy,layout_,graphdiv="graph",traces_=[0]){
+    
+
+    Plotly.update(graphdiv,{
+      x:[newx],
+      y:[newy]
+    },layout_,traces_)
+    
+     
+  }
+
+  function removePointsOnPlot(){
+    updatePointsOnPlot([],[],{});
+  }
   
   //Unused functions
   function generateStaticGraph(x_, y_, divname, type_ = "scatter") {
