@@ -185,7 +185,7 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
     data: [
        // Plot [0] ie linechart of full data
       {
-        // type: 'scattergl',
+         
         x: x_,
         y: y_,
 
@@ -208,7 +208,7 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
 
       // Plot [1] ie scatter plot that changes with user inputs
       {
-        type: 'scattergl',
+        
         x: [],
         y: [],
 
@@ -302,10 +302,10 @@ function initializeUIWidgets(textArray, selector, columnObject) {
       }
     );
 
-    // Plotly.relayout("graph", {
-    //   "xaxis.autorange": true,
-    //   "yaxis.autorange": true
-    // });
+    Plotly.relayout("graph", {
+      "xaxis.autorange": true,
+      "yaxis.autorange": true
+    });
   }
 
   // Init slider
