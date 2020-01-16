@@ -30,55 +30,7 @@ var mplayer = videojs("my-video", video_options, function onPlayerReady() {
   });
 });
 
-function generateStaticGraph(x_, y_, divname, type_ = "scatter") {
-  var dataTrace = {
-    x: x_,
-    y: y_,
-    type: type_
-  };
 
-  Plotly.newPlot(divname, [dataTrace]);
-}
-
-function generateDynamicGraph() {
-  function getData() {
-    return Math.random();
-  }
-
-  var layout = {
-    hovermode: "closest",
-    title: "$y"
-  };
-  Plotly.newPlot("chart", [
-    {
-      y: [getData()],
-      type: "line",
-      layout: layout
-    }
-  ]);
-
-  var cnt = 0;
-  setInterval(function() {
-    if (!isPaused) {
-      Plotly.extendTraces(
-        "chart",
-        {
-          y: [[getData()]]
-        },
-        [0]
-      );
-      cnt++;
-      if (cnt > 500) {
-        Plotly.relayout("chart", {
-          xaxis: {
-            range: [cnt - 500, cnt]
-          }
-          //   annotations: self.layout.annotations
-        });
-      }
-    }
-  }, frequency);
-}
 
 // Video Picker
 
@@ -186,15 +138,17 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
        // Plot [0] ie linechart of full data
       {
          
-        x: x_,
-        y: y_,
+        x: [],
+        y: [],
+        // x:x_,
+        // y:y_,
 
-        mode: "markers+lines",
-        opacity: 0.3,
+        mode: "markers",
+        // opacity: 0.5,
          
         marker: {
           color: "rgb(21, 0, 158)",
-          size:1,
+          size:0.1,
           line: {
             color: "rgb(0, 0, 0)",
             width: 0.5
@@ -213,9 +167,10 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
         y: [],
 
         // mode: "lines",
-        mode: "markers",
-        size: 0.05,
+        mode: "markers+lines",
+        
         marker: {
+           
           color: "rgb(255, 0, 0)",
           // line: {
           //   color: "rgb(255, 0, 0)",
@@ -383,6 +338,16 @@ $(document).on("click", "#clearAnnotations", function(e) {
   e.preventDefault();
   global_annotations = [];
   Plotly.relayout("graph", { annotations: global_annotations });
+});
+
+// Clear Points
+$(document).on("click", "#clearPoints", function(e) {
+  e.preventDefault();
+  Plotly.restyle("graph",{
+    x:[[]],
+    y:[[]]
+  },[1])
+  
 });
 
 // $("#slider").on("mousedown", function(e) {

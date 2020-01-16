@@ -52,4 +52,53 @@ function isAPIAvailable() {
     return (s - (s %= 60)) / 60 + (9 < s ? ":" : ":0") + Math.round(s * 10) / 10;
   }
   
-   
+  //Unused functions
+  function generateStaticGraph(x_, y_, divname, type_ = "scatter") {
+    var dataTrace = {
+      x: x_,
+      y: y_,
+      type: type_
+    };
+  
+    Plotly.newPlot(divname, [dataTrace]);
+  }
+  
+  function generateDynamicGraph() {
+    function getData() {
+      return Math.random();
+    }
+  
+    var layout = {
+      hovermode: "closest",
+      title: "$y"
+    };
+    Plotly.newPlot("chart", [
+      {
+        y: [getData()],
+        type: "line",
+        layout: layout
+      }
+    ]);
+  
+    var cnt = 0;
+    setInterval(function() {
+      if (!isPaused) {
+        Plotly.extendTraces(
+          "chart",
+          {
+            y: [[getData()]]
+          },
+          [0]
+        );
+        cnt++;
+        if (cnt > 500) {
+          Plotly.relayout("chart", {
+            xaxis: {
+              range: [cnt - 500, cnt]
+            }
+            //   annotations: self.layout.annotations
+          });
+        }
+      }
+    }, frequency);
+  } 
