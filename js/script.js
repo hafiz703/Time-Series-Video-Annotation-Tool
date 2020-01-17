@@ -285,13 +285,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
     setInterval(function() {
       if (!isPaused) {
         var currentSliderVal = parseInt($("#slider").slider("value"));
-        // if((currentSliderVal+1)%500==0){
-        //   Plotly.restyle("graph",{
-        //     x:[[]],
-        //     y:[[]]
-        //   },[1])
-        // }
-
+        
         setSliderTextValue(currentSliderVal);
         $("#slider").slider("option", "value", currentSliderVal + 1);
 
@@ -304,7 +298,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
           [0]
         );
       }
-    }, 1000 / frequency);
+    }, (1000 / frequency) );
   });
 }
 
