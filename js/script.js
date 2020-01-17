@@ -35,6 +35,7 @@ var mplayer = videojs("my-video", video_options, function onPlayerReady() {
 this.onFileChange = function() {
   let file = document.getElementById("videofile");
   this.mplayer.src("./" + file.files[0].name);
+  $("#video-container").css("visibility", "visible");
   // this.mplayer.pause();
 };
 
@@ -133,8 +134,6 @@ function printTable(file) {
 function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
   Plotly.newPlot(divName, {
     data: [
-  
-
       //  scatter plot that changes with user inputs
       {
         x: [],
@@ -271,13 +270,15 @@ function initializeUIWidgets(textArray, selector, columnObject) {
   $("#sliderVal").val($("#slider").slider("value"));
 
   // Video
-  $(document).on("click", "#playPause", function(e) {
-    e.preventDefault();
+  $("#playPause").click(function() {
+    
     isPaused = !isPaused;
     if (isPaused) {
+      
       $("#playPause").html("Play");
       mplayer.pause();
     } else {
+      
       $("#playPause").html("Pause");
       mplayer.play();
     }
@@ -285,7 +286,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
     setInterval(function() {
       if (!isPaused) {
         var currentSliderVal = parseInt($("#slider").slider("value"));
-        
+
         setSliderTextValue(currentSliderVal);
         $("#slider").slider("option", "value", currentSliderVal + 1);
 
@@ -298,7 +299,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
           [0]
         );
       }
-    }, (1000 / frequency) );
+    }, 1000 / frequency);
   });
 }
 

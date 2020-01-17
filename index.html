@@ -12,11 +12,6 @@
 
     <title>Time Series Labelling Tool</title>
 
-    <link
-      rel="canonical"
-      href="https://getbootstrap.com/docs/4.0/examples/dashboard/"
-    />
-
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
 
@@ -35,83 +30,32 @@
       </ul>
     </nav>
 
+    <div id="loader" class="spinner" style="display: none;">
+      <div class="double-bounce1"></div>
+      <div class="double-bounce2"></div>
+    </div>
+
     <div class="container-fluid">
       <div class="row">
         <nav class="col-md-2 d-none d-md-block bg-light sidebar">
           <div class="sidebar-sticky">
-            <ul class="nav flex-column">
-              <li class="nav-item">
-                <a class="nav-link active" href="#">
-                  <span data-feather="home"></span>
-                  Dashboard <span class="sr-only">(current)</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="file"></span>
-                  Orders
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="shopping-cart"></span>
-                  Products
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="users"></span>
-                  Customers
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="bar-chart-2"></span>
-                  Reports
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="layers"></span>
-                  Integrations
-                </a>
-              </li>
-            </ul>
-
-            <h6
-              class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"
-            >
-              <span>Saved reports</span>
-              <a class="d-flex align-items-center text-muted" href="#">
-                <span data-feather="plus-circle"></span>
-              </a>
-            </h6>
-            <ul class="nav flex-column mb-2">
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="file-text"></span>
-                  Current month
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="file-text"></span>
-                  Last quarter
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="file-text"></span>
-                  Social engagement
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">
-                  <span data-feather="file-text"></span>
-                  Year-end sale
-                </a>
-              </li>
-            </ul>
+            <div class="table-responsive">
+              <table class="table table-striped table-sm">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Range</th>
+                    <th>Class</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1,001</td>
+                    <td>Lorem</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </nav>
 
@@ -142,6 +86,48 @@
           </div>
 
           <div id="graph"></div>
+
+          <div class="control-row m-4" style="visibility: hidden;">
+            <div class="row">
+              <select class="columndata form-control border"> </select>
+            </div>
+            <div class="row">
+              <p>
+                <label for="sliderVal"></label>
+                <input
+                  type="text"
+                  id="sliderVal"
+                  style="border:0; color:red; font-weight:bold;"
+                />
+              </p>
+            </div>
+
+            <div id="slider"></div>
+
+            <div class="row mt-5 justify-content-center uiButtons">
+              <!-- <button class="btn btn-outline-secondary" type="button" id="clearAnnotations">
+                Clear Annotations 
+              </button> -->
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="playPause"
+              >
+                <i class="align-middle" data-feather="play" id="playIcon"></i>
+
+                <span class="align-middle" id="playText">Play</span>
+              </button>
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                id="clearPoints"
+              >
+                <i class="align-middle" data-feather="trash-2"></i
+                ><span class="align-middle">Clear Points</span>
+              </button>
+            </div>
+          </div>
+
           <div
             class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom"
           >
@@ -164,8 +150,8 @@
               </div>
             </div>
           </div>
-          
-          <div class="video-container">
+
+          <div id="video-container" style="visibility: hidden;">
             <video
               id="my-video"
               class="video-js"
@@ -185,6 +171,7 @@
               </p>
             </video>
           </div>
+          <div class="footer"></div>
         </main>
       </div>
     </div>
@@ -192,17 +179,14 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script
-      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-      crossorigin="anonymous"
-    ></script>
-    <script>
-      window.jQuery ||
-        document.write(
-          '<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>'
-        );
-    </script>
+    <script src="js/jquery/jquery-3.2.1.slim.min.js"></script>
+    <!-- jQuery library -->
+    <link
+      href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
+      rel="stylesheet"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
     <script src="js/bootstrap/popper.min.js"></script>
     <script src="js/bootstrap/bootstrap.min.js"></script>
 
@@ -225,5 +209,6 @@
     <script src="./js/script.js"></script>
 
     <link rel="stylesheet" href="./css/loader.css" />
+    <link rel="stylesheet" href="./css/misc.css" />
   </body>
 </html>
