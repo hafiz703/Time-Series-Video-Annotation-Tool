@@ -1,127 +1,229 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico" />
+
+    <title>Time Series Labelling Tool</title>
+
+    <link
+      rel="canonical"
+      href="https://getbootstrap.com/docs/4.0/examples/dashboard/"
+    />
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Custom styles for this template -->
+    <link href="css/dashboard.css" rel="stylesheet" />
   </head>
 
   <body>
-    <div id="loader" class="spinner" style="display: none;">
-      <div class="double-bounce1"></div>
-      <div class="double-bounce2"></div>
-    </div>
+    <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0">
+      <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">@hafiz703</a>
+      <!-- <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"> -->
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+          <a class="nav-link" href="#"><i data-feather="help-circle"></i></a>
+        </li>
+      </ul>
+    </nav>
 
-    <div class="navbar"><span>Time Series & Video Annotation Tool</span></div>
-    <div class="wrapper">
-      <div id="chart"></div>
-      <div id="graph"></div>
+    <div class="container-fluid">
+      <div class="row">
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link active" href="#">
+                  <span data-feather="home"></span>
+                  Dashboard <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file"></span>
+                  Orders
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="shopping-cart"></span>
+                  Products
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="users"></span>
+                  Customers
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="bar-chart-2"></span>
+                  Reports
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="layers"></span>
+                  Integrations
+                </a>
+              </li>
+            </ul>
 
-      <div class="control-row" style="visibility: hidden;">
-        Column:
-        <select class="columndata"> </select>
+            <h6
+              class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"
+            >
+              <span>Saved reports</span>
+              <a class="d-flex align-items-center text-muted" href="#">
+                <span data-feather="plus-circle"></span>
+              </a>
+            </h6>
+            <ul class="nav flex-column mb-2">
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Current month
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Last quarter
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Social engagement
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">
+                  <span data-feather="file-text"></span>
+                  Year-end sale
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
 
-        <p>
-          <label for="sliderVal">Value:</label>
-          <input
-            type="text"
-            id="sliderVal"
-            style="border:0; color:red; font-weight:bold;"
-          />
-        </p>
-        <div id="slider"></div>
-
-        <button type="button" id="clearAnnotations">Clear Annotations</button>
-        <button type="button" id="playPause">Play</button>
-        <button type="button" id="clearPoints">Clear Points</button>
-      </div>
-    </div>
-
-    <div class="wrapper">
-      <button
-        style="display:block;"
-        onclick="document.getElementById('videofile').click()"
-      >
-        Choose Video
-      </button>
-
-      <input
-        type="file"
-        id="videofile"
-        onchange="onFileChange()"
-        style="display:none"
-      />
-      <video
-        id="my-video"
-        class="video-js"
-        width="640"
-        height="264"
-        data-setup="{}"
-        controls
-      >
-        <!-- <source src="./.mp4" type="video/mp4" /> -->
-        <!-- <source src="MY_VIDEO.webm" type="video/webm" /> -->
-        <p class="vjs-no-js">
-          To view this video please enable JavaScript, and consider upgrading to
-          a web browser that
-          <a href="https://videojs.com/html5-video-support/" target="_blank"
-            >supports HTML5 video</a
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+          <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom"
           >
-        </p>
-      </video>
-    </div>
+            <h2>Dashboard</h2>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+                <button
+                  class="btn btn-sm btn-outline-secondary"
+                  onclick="document.getElementById('csvfile').click()"
+                >
+                  Choose CSV
+                </button>
+                <input
+                  type="file"
+                  id="csvfile"
+                  name="files[]"
+                  value="Choose CSV"
+                  style="display:none"
+                />
 
-    <div>
-      <div id="inputs" class="clearfix">
-        <button
-          style="display:block;"
-          onclick="document.getElementById('csvfile').click()"
-        >
-          ChooseCSV
-        </button>
-        <input
-          type="file"
-          id="csvfile"
-          name="files[]"
-          value="Choose CSV"
-          style="display:none"
-        />
+                <!-- <button class="btn btn-sm btn-outline-secondary">Export</button> -->
+              </div>
+            </div>
+          </div>
+
+          <div id="graph"></div>
+          <div
+            class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom"
+          >
+            <h2>Video</h2>
+            <div class="btn-toolbar mb-2 mb-md-0">
+              <div class="btn-group mr-2">
+                <button
+                  class="btn btn-sm btn-outline-secondary"
+                  onclick="document.getElementById('videofile').click()"
+                >
+                  Choose Video
+                </button>
+
+                <input
+                  type="file"
+                  id="videofile"
+                  onchange="onFileChange()"
+                  style="display:none"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div class="video-container">
+            <video
+              id="my-video"
+              class="video-js"
+              width="640"
+              height="264"
+              data-setup="{}"
+              controls
+            >
+              <p class="vjs-no-js">
+                To view this video please enable JavaScript, and consider
+                upgrading to a web browser that
+                <a
+                  href="https://videojs.com/html5-video-support/"
+                  target="_blank"
+                  >supports HTML5 video</a
+                >
+              </p>
+            </video>
+          </div>
+        </main>
       </div>
-      <hr />
-      <output id="list"> </output>
-      <hr />
-      <table id="contents" style="width:100%; height:400px;" border></table>
     </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      window.jQuery ||
+        document.write(
+          '<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>'
+        );
+    </script>
+    <script src="js/bootstrap/popper.min.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script>
+      feather.replace();
+    </script>
+    <!-- Latest compiled Plotly -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- VideoJS stuff -->
+    <link href="https://vjs.zencdn.net/7.6.6/video-js.css" rel="stylesheet" />
+    <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+    <script src="https://vjs.zencdn.net/7.6.6/video.js"></script>
+
+    <!-- Jquery CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.8/jquery.csv.js"></script>
+
+    <script src="./js//utils.js"></script>
+    <script src="./js/script.js"></script>
+
+    <link rel="stylesheet" href="./css/loader.css" />
   </body>
-  <!-- Latest compiled and minified CSS -->
-  <link
-    rel="stylesheet"
-    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-  />
-
-  <link rel="stylesheet" href="./css/loader.css" />
-
-  <!-- jQuery library -->
-  <link
-    href="https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
-    rel="stylesheet"
-  />
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
-
-  <!-- Popper JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-
-  <!-- Latest compiled JavaScript -->
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-
-  <!-- Latest compiled Plotly -->
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <!-- VideoJS stuff -->
-  <link href="https://vjs.zencdn.net/7.6.6/video-js.css" rel="stylesheet" />
-  <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
-  <script src="https://vjs.zencdn.net/7.6.6/video.js"></script>
-
-  <!-- Jquery CSV -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.8/jquery.csv.js"></script>
-
-  <script src="./js//utils.js"></script>
-  <script src="./js/script.js"></script>
 </html>
