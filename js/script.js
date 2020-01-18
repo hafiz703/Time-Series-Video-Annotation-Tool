@@ -159,18 +159,24 @@ function generateRowMarkup(id, val) {
 //     });
 // });
 
- 
-$(document).on('click', '.deleteRow', function() {
-  var idToRemove = parseInt($(this).parents("td").attr("id"));
+$(document).on("click", ".deleteRow", function() {
+  var idToRemove = parseInt(
+    $(this)
+      .parents("td")
+      .attr("id")
+  );
   delete globalAnnotations[idToRemove];
-  $(this).parents("tr").remove();
+  $(this)
+    .parents("tr")
+    .remove();
 });
 
-function deleteRow(idToDelete){
+function deleteRow(idToDelete) {
   // console.log($(idToDelete));
-  $(idToDelete).parent("tr").remove();
+  $(idToDelete)
+    .parent("tr")
+    .remove();
 }
- 
 
 // Plot Graph
 function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
@@ -219,9 +225,11 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
     // alert(x, y);
 
     //TODO : x,y update in table
-
     var range = Math.min(...x) + "..." + Math.max(...x);
     var id = Object.keys(globalAnnotations).length;
+    while (id in globalAnnotations){
+      id+=1;
+    }
     globalAnnotations[id] = {
       id: id,
       range: range
@@ -249,11 +257,6 @@ function initializeUIWidgets(textArray, selector, columnObject) {
 
   function sliderCallback(ui) {
     setSliderTextValue(ui.value);
-
-    function filterValues(arr, val) {
-      var nearThousand = Math.floor(val / 1000) * 1000;
-      return arr.slice(nearThousand, val);
-    }
 
     Plotly.animate(
       "graph",
