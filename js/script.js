@@ -11,7 +11,7 @@ var video_options = {
 };
 
 var myPlot = document.getElementById("graph");
-var global_annotations = [];
+var globalAnnotations = {};
 // var frequency = 10;
 // var columns = new Object();
 // var rows = new Object();
@@ -36,7 +36,9 @@ this.onFileChange = function() {
   let file = document.getElementById("videofile");
   this.mplayer.src("./" + file.files[0].name);
   $("#video-container").css("visibility", "visible");
-  $("#videoTitle").html(file.files[0].name==null?"Video":file.files[0].name);
+  $("#videoTitle").html(
+    file.files[0].name == null ? "Video" : file.files[0].name
+  );
 
   // this.mplayer.pause();
 };
@@ -134,6 +136,43 @@ function printTable(file) {
   // generateDynamicGraph();
 }
 
+//Table Logic
+function generateRowMarkup(id, val) {
+  var row = `<tr class='d-flex'> \
+  <td id=${id} onClick="deleteRow(this.id)" class='col-1'><a href='#'><i class="fas fa-trash deleteRow"></i></a></td> \
+  <td class='col-1'>${id}</td> \
+  <td class='col-6'>${val}</td> \
+  <td class='col-4'> \
+      <input style='height:25px' class='form-control' value='1' type='number' />\
+  </td>\
+</tr>`;
+  return row;
+}
+
+//Delete Row
+// $(document).on("click", ".deleteRow", function() {
+//   alert("clicked");
+//   $("table tbody")
+//     .find('td[name="record"]')
+//     .each(function() {
+//       console.log($(this));
+//     });
+// });
+
+ 
+$(document).on('click', '.deleteRow', function() {
+  var idToRemove = parseInt($(this).parents("td").attr("id"));
+  delete globalAnnotations[idToRemove];
+  $(this).parents("tr").remove();
+});
+
+function deleteRow(idToDelete){
+  // console.log($(idToDelete));
+  $(idToDelete).parent("tr").remove();
+}
+ 
+
+// Plot Graph
 function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
   Plotly.newPlot(divName, {
     data: [
@@ -177,8 +216,19 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
       y.push(pt.y);
     });
 
-    alert(x, y);
+    // alert(x, y);
+
     //TODO : x,y update in table
+
+    var range = Math.min(...x) + "..." + Math.max(...x);
+    var id = Object.keys(globalAnnotations).length;
+    globalAnnotations[id] = {
+      id: id,
+      range: range
+    };
+
+    var rowToAdd = generateRowMarkup(id, range);
+    $("table tbody").append(rowToAdd);
   });
 }
 
@@ -275,14 +325,11 @@ function initializeUIWidgets(textArray, selector, columnObject) {
 
   // Video
   $("#playPause").click(function() {
-    
     isPaused = !isPaused;
     if (isPaused) {
-      
       $("#playPause").html("Play");
       mplayer.pause();
     } else {
-      
       $("#playPause").html("Pause");
       mplayer.play();
       // frequency =  $('#frequencyInput').val();
@@ -307,17 +354,14 @@ function initializeUIWidgets(textArray, selector, columnObject) {
       }
     }, 1000 / getFrequency());
   });
-
-  
 }
 
 // Frequency
- 
-function getFrequency(freqId = "frequencyInput"){
-  var res =  $('#frequencyInput').val()<=0?10:$('#frequencyInput').val();   
-  console.log("freq "+res);
+
+function getFrequency(freqId = "frequencyInput") {
+  var res = $("#frequencyInput").val() <= 0 ? 10 : $("#frequencyInput").val();
+  // console.log("freq "+res);
   return res;
-   
 }
 
 // Clear Annotations
