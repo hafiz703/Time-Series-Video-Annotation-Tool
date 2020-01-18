@@ -12,7 +12,7 @@ var video_options = {
 
 var myPlot = document.getElementById("graph");
 var global_annotations = [];
-var frequency = 10;
+// var frequency = 10;
 // var columns = new Object();
 // var rows = new Object();
 // var headers = [];
@@ -36,6 +36,8 @@ this.onFileChange = function() {
   let file = document.getElementById("videofile");
   this.mplayer.src("./" + file.files[0].name);
   $("#video-container").css("visibility", "visible");
+  $("#videoTitle").html(file.files[0].name==null?"Video":file.files[0].name);
+
   // this.mplayer.pause();
 };
 
@@ -55,6 +57,7 @@ if (isAPIAvailable()) {
 function handleFileSelect(evt) {
   var files = evt.target.files; // FileList object
   var file = files[0];
+  $("#dashboardTitle").html(file.name);
   // console.log(file);
   //DEBUGONLY
   // var file = "./file1.csv"
@@ -189,7 +192,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
   }
 
   function setSliderTextValue(newval) {
-    var secs = newval / frequency;
+    var secs = newval / getFrequency();
     mplayer.currentTime(secs);
     $("#sliderVal").val(fmtMSS(secs) + " || " + newval);
   }
@@ -246,6 +249,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
     setTimeout(function() {
       $("#loader").show();
       $("#slider").slider("value", 0);
+      $("#sliderVal").val($("#slider").slider("value"));
     }, 100);
 
     setTimeout(function() {
@@ -281,6 +285,8 @@ function initializeUIWidgets(textArray, selector, columnObject) {
       
       $("#playPause").html("Pause");
       mplayer.play();
+      // frequency =  $('#frequencyInput').val();
+      // console.log("Frequency:" +frequency);
     }
 
     setInterval(function() {
@@ -299,8 +305,19 @@ function initializeUIWidgets(textArray, selector, columnObject) {
           [0]
         );
       }
-    }, 1000 / frequency);
+    }, 1000 / getFrequency());
   });
+
+  
+}
+
+// Frequency
+ 
+function getFrequency(freqId = "frequencyInput"){
+  var res =  $('#frequencyInput').val()<=0?10:$('#frequencyInput').val();   
+  console.log("freq "+res);
+  return res;
+   
 }
 
 // Clear Annotations
