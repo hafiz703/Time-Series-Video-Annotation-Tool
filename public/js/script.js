@@ -121,6 +121,9 @@ function printTable(file) {
 
     
     const [html, rows, columns, headers] = parseCSV(data);
+    var newHeader = headers;
+    newHeader.push("Class");
+    var rowsCopy = rows;    
     // const featLength = rows[0].length;
     // console.log(rows);
     // Save lables to csv
@@ -135,13 +138,13 @@ function printTable(file) {
         var savedRowMaxX = globalAnnotations[i]["maxX"];
 
         for (var x = savedRowMinX; x <= savedRowMaxX; x++) {
-          rows[x+1].push(classRowId);
+          rowsCopy[x+1].push(classRowId);
         }
         globalAnnotations[i]["class"] = classRowId;
       }
-      var newHeader = headers;
-      newHeader.push("Class");    
-      downloadCsv(newHeader,rows,$("#dashboardTitle").text()+"_output.csv");
+      
+      downloadCsv(newHeader,rowsCopy,$("#dashboardTitle").text()+"_output.csv");
+      rowsCopy = rows;
     });
 
     // generateStaticGraph(columns[0], columns[6], "graph");
