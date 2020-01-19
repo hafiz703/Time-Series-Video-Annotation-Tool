@@ -123,7 +123,7 @@ function printTable(file) {
     const [html, rows, columns, headers] = parseCSV(data);
     var newHeader = headers;
     newHeader.push("Class");
-    var rowsCopy = rows;    
+    var rowsCopy = JSON.parse(JSON.stringify(rows));    
     // const featLength = rows[0].length;
     // console.log(rows);
     // Save lables to csv
@@ -144,7 +144,7 @@ function printTable(file) {
       }
       
       downloadCsv(newHeader,rowsCopy,$("#dashboardTitle").text()+"_output.csv");
-      rowsCopy = rows;
+      rowsCopy = JSON.parse(JSON.stringify(rows));  
     });
 
     // generateStaticGraph(columns[0], columns[6], "graph");
