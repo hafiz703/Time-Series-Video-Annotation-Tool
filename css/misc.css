@@ -1,13 +1,18 @@
 .footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;     
-    visibility: hidden;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  visibility: hidden;
 }
 
 .tooltip-inner {
-      background-color: #fff; 
-      color: #000;
-      border: 1px solid #000;
-  }
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+}
+
+button:focus {
+  border: none !important;
+  outline: none !important;
+}
