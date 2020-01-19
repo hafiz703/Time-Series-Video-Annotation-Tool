@@ -61,8 +61,6 @@ function handleFileSelect(evt) {
   var file = files[0];
   $("#dashboardTitle").html(file.name);
   // console.log(file);
-  //DEBUGONLY
-  // var file = "./file1.csv"
 
   // read the file metadata
   var output = "";
@@ -71,7 +69,8 @@ function handleFileSelect(evt) {
   printTable(file);
 
   // post the results
-  $("#list").append(output);
+  // $("#list").append(output);
+  // console.log(output);
 }
 
 //Table utils
@@ -105,9 +104,12 @@ function parseCSV(csvData) {
   }
 
   headers = rows[0];
+   
   delete rows[0];
+
   return [html, rows, columns, headers];
 }
+
 
 function printTable(file) {
   var reader = new FileReader();
@@ -117,7 +119,30 @@ function printTable(file) {
     var data = $.csv.toArrays(csv);
     var columnSelector = document.querySelector(".columndata");
 
+    
     const [html, rows, columns, headers] = parseCSV(data);
+    // const featLength = rows[0].length;
+    // console.log(rows);
+    // Save lables to csv
+    $(document).on("click", "#saveToCsv", function(e) {
+      e.preventDefault();
+
+      for (i in globalAnnotations) {
+        var classRowId = document.getElementById(
+          `class_${globalAnnotations[i]["id"]}`
+        ).value;
+        var savedRowMinX = globalAnnotations[i]["minX"];
+        var savedRowMaxX = globalAnnotations[i]["maxX"];
+
+        for (var x = savedRowMinX; x <= savedRowMaxX; x++) {
+          rows[x+1].push(classRowId);
+        }
+        globalAnnotations[i]["class"] = classRowId;
+      }
+      var newHeader = headers;
+      newHeader.push("Class");    
+      downloadCsv(newHeader,rows,$("#dashboardTitle").html(file.name)+"_output.csv");
+    });
 
     // generateStaticGraph(columns[0], columns[6], "graph");
 
@@ -139,11 +164,11 @@ function printTable(file) {
 //Table Logic
 function generateRowMarkup(id, val) {
   var row = `<tr class='d-flex'> \
-  <td id=${id} onClick="deleteRow(this.id)" class='col-1'><a href='#'><i class="fas fa-trash deleteRow"></i></a></td> \
+  <td id=${id} class='col-1'><a href='#'><i class="fas fa-trash deleteRow"></i></a></td> \
   <td class='col-1'>${id}</td> \
   <td class='col-6'>${val}</td> \
   <td class='col-4'> \
-      <input style='height:25px' class='form-control' value='1' type='number' />\
+      <input id=class_${id}  style='height:25px' class='form-control' value='1' type='number' />\
   </td>\
 </tr>`;
   return row;
@@ -160,11 +185,10 @@ function generateRowMarkup(id, val) {
 // });
 
 $(document).on("click", ".deleteRow", function() {
-  var idToRemove = parseInt(
-    $(this)
-      .parents("td")
-      .attr("id")
-  );
+  var idToRemove = $(this)
+    .parents("td")
+    .attr("id");
+
   delete globalAnnotations[idToRemove];
   $(this)
     .parents("tr")
@@ -227,12 +251,14 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
     //TODO : x,y update in table
     var range = Math.min(...x) + "..." + Math.max(...x);
     var id = Object.keys(globalAnnotations).length;
-    while (id in globalAnnotations){
-      id+=1;
+    while (id in globalAnnotations) {
+      id += 1;
     }
     globalAnnotations[id] = {
       id: id,
-      range: range
+      range: range,
+      minX: Math.min(...x),
+      maxX: Math.max(...x)
     };
 
     var rowToAdd = generateRowMarkup(id, range);
