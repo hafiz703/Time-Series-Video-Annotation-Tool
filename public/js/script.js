@@ -141,7 +141,7 @@ function printTable(file) {
       }
       var newHeader = headers;
       newHeader.push("Class");    
-      downloadCsv(newHeader,rows,$("#dashboardTitle").html(file.name)+"_output.csv");
+      downloadCsv(newHeader,rows,$("#dashboardTitle").text()+"_output.csv");
     });
 
     // generateStaticGraph(columns[0], columns[6], "graph");
