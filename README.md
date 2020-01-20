@@ -3,7 +3,7 @@
 Label time series data with optional syncing to video 
 
 #### How to run
-In your command prompt / bash,
+In your command prompt / bash,<br/>
 `git clone https://github.com/hafiz703/Time-Series-Video-Annotation-Tool ` <br/>
 `cd public` <br/>
 `python runLocalServer.py`
