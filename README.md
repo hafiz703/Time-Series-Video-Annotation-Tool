@@ -4,8 +4,8 @@ Label time series data with optional syncing to video
 
 #### How to run
 In your command prompt / bash,
-`git clone https://github.com/hafiz703/Time-Series-Video-Annotation-Tool `
-`cd public`
+`git clone https://github.com/hafiz703/Time-Series-Video-Annotation-Tool ` \n
+`cd public` \n
 `python runLocalServer.py`
 
 Launch `localhost:8325` in your browser
