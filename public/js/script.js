@@ -106,7 +106,7 @@ function parseCSV(csvData) {
   headers = rows[0];
    
   delete rows[0];
-
+  columns["time"] = range(0,columns[0].length);
   return [html, rows, columns, headers];
 }
 
@@ -121,6 +121,7 @@ function printTable(file) {
 
     
     const [html, rows, columns, headers] = parseCSV(data);
+    console.log(columns);
     var newHeader = headers;
     newHeader.push("Class");
     var rowsCopy = JSON.parse(JSON.stringify(rows));    
@@ -149,7 +150,7 @@ function printTable(file) {
 
     // generateStaticGraph(columns[0], columns[6], "graph");
 
-    plotlyPlot(columns[0], columns[0], headers[0]);
+    plotlyPlot(columns["time"], columns[0], headers[0]);
 
     // initialize dropdowns
     initializeUIWidgets(headers, columnSelector, columns);
@@ -292,7 +293,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
       {
         data: [
           {
-            x: columnObject[0].slice(0, ui.value),
+            x: columnObject["time"].slice(0, ui.value),
             y: columnObject[selector.selectedIndex].slice(0, ui.value)
             // x: filterValues(columnObject[0], ui.value),
             // y: filterValues(columnObject[selector.selectedIndex], ui.value)
@@ -341,7 +342,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
       //   selector.value
       // );
       updatePointsOnPlot(
-        columnObject[0],
+        columnObject["time"],
         columnObject[selector.selectedIndex],
         {
           title: selector.value
