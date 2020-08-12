@@ -34,7 +34,9 @@ var mplayer = videojs("my-video", video_options, function onPlayerReady() {
 
 this.onFileChange = function() {
   let file = document.getElementById("videofile");
+ 
   this.mplayer.src("./" + file.files[0].name);
+ 
   $("#video-container").css("visibility", "visible");
   $("#videoTitle").html(
     file.files[0].name == null ? "Video" : file.files[0].name
@@ -252,7 +254,7 @@ function plotlyPlot(x_, y_, selectedcolumn, divName = "graph") {
 
     // alert(x, y);
 
-    //TODO : x,y update in table
+     
     var range = Math.min(...x) + "..." + Math.max(...x);
     var id = Object.keys(globalAnnotations).length;
     while (id in globalAnnotations) {
@@ -281,7 +283,7 @@ function initializeUIWidgets(textArray, selector, columnObject) {
 
   function setSliderTextValue(newval) {
     var secs = newval / getFrequency();
-    mplayer.currentTime(secs);
+    // mplayer.currentTime(secs);
     $("#sliderVal").val(fmtMSS(secs) + " || " + newval);
   }
 
